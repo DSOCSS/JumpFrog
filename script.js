@@ -86,7 +86,7 @@ function drawBoard() {
 
     // background for safe lanes
     ctx.fillStyle = Colors.safe;
-    for(let i = 0; i <= numCols; i++){
+    for (let i = 0; i <= numCols; i++) {
         ctx.drawImage(IMG.GROUND, blockSize * i, blockSize * 6, blockSize, blockSize);
         ctx.drawImage(IMG.GROUND, blockSize * i, blockSize * 12, blockSize, blockSize);
     }
@@ -97,7 +97,7 @@ function drawBoard() {
 
     // background for end bank
     ctx.fillStyle = Colors.end;
-    for(let i = 0; i < numCols; i++){
+    for (let i = 0; i < numCols; i++) {
         ctx.drawImage(IMG.GRASS, blockSize * i, blockSize * 0, blockSize, blockSize);
     }
 
@@ -116,7 +116,7 @@ function renderCars(size) {
         ctx.fillStyle = Colors.car;
         // ctx.fillRect(car.pos[0] * size, car.pos[1] * size, size, size);
         let img = IMG.CAR;
-        if(car.eastBound == true){
+        if (car.eastBound == true) {
             img = IMG.CAR2;
         }
         ctx.drawImage(img, car.pos[0] * size, car.pos[1] * size, size, size);
@@ -244,10 +244,6 @@ function initPlatforms() {
 
 }
 
-
-// initialize cars and platforms
-initCars();
-initPlatforms();
 function gameLoop() {
     console.log("Game loop working");
     if (inputDelay <= 0) {
@@ -265,15 +261,23 @@ function gameLoop() {
         resetPlayer(); // send player back to start
     }
     let platformColl = checkCollision(safePlatforms, [-0.6, 1.6]);
-    if(!platformColl && player.y <= 5 && player.y >= 1){
+    if (!platformColl && player.y <= 5 && player.y >= 1) {
         resetPlayer(); // player fell into water, send back to start
     }
 
     drawBoard();
 }
 
-let gameInterval = setInterval(gameLoop, 50);
-
+/**
+ * Start the game once all images are loaded
+ */
+let gameInterval;
+function startGame() {
+    // initialize cars and platforms
+    initCars();
+    initPlatforms();
+    gameInterval = setInterval(gameLoop, 50);
+}
 /**
  * Keyboard input
  */
