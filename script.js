@@ -25,7 +25,7 @@ const Colors = {
 // Images
 const IMG_Frog = document.getElementById("frog");
 
-function resetPlayer(){
+function resetPlayer() {
     player.x = startPos[0];
     player.y = startPos[1];
 }
@@ -103,14 +103,16 @@ function renderCars(size) {
 
 /**
  * @param objects an array of cars or safe platforms
+ * @param hitbox a 2d array of how many spaces to the left/right of the leftmost square
+ *               count as a collision. [leftOffset, rightOffset]
  * @returns true if a given object collides with player, false otherwise
  */
-function checkCollision(objects, length) {
+function checkCollision(objects, hitbox) {
     for (let i = 0; i < objects.length; i++) {
         let object = objects[i].pos;
 
         let sameRow = Math.abs(object[1] - player.y) <= 0.5 ? true : false;
-        let sameCol = (player.x + 1 >= object[0] && player.x <= (object[0] + length)) ? true : false;
+        let sameCol = (player.x >= object[0] + hitbox[0] && player.x <= (object[0] + hitbox[1])) ? true : false;
         if (sameRow && sameCol) {
             return true;
         }
@@ -152,8 +154,8 @@ function movePlatforms() {
         }
         safePlatforms[i].pos = [x += direc * safePlatforms[i].speed, safePlatforms[i].pos[1]];
 
-        // the frog is touching the platform
-        if(!player.platformMoved && checkCollision([safePlatforms[i]], 2) == true){
+        // the player is touching the platform
+        if (!player.platformMoved && checkCollision([safePlatforms[i]], [-0.5, 1.5]) == true) {
             player.x += direc * safePlatforms[i].speed;
             player.platformMoved = true;
         }
@@ -236,8 +238,8 @@ function gameLoop() {
     player.platformMoved = false;
 
     // check for collisions
-    let carColl = checkCollision(cars, 1);
-    if(carColl){
+    let carColl = checkCollision(cars, [-1, 1]);
+    if (carColl) {
         resetPlayer(); // send player back to start
     }
 
