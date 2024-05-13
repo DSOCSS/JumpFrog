@@ -1,3 +1,8 @@
+/**
+ * Jump Frog Game
+ * 
+ * @author Arthur Zarins
+ */
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
@@ -23,7 +28,14 @@ const Colors = {
 }
 
 // Images
-const IMG_Frog = document.getElementById("frog");
+const IMG = {
+    FROG: document.getElementById("frog"),
+    CAR: document.getElementById("car"),
+    CAR2: document.getElementById("car2"),
+    GROUND: document.getElementById("ground"),
+    GRASS: document.getElementById("grass"),
+    LOG: document.getElementById("log")
+}
 
 function resetPlayer() {
     player.x = startPos[0];
@@ -74,8 +86,10 @@ function drawBoard() {
 
     // background for safe lanes
     ctx.fillStyle = Colors.safe;
-    ctx.fillRect(0, blockSize * 6, canvas.width, blockSize);
-    ctx.fillRect(0, blockSize * 12, canvas.width, blockSize);
+    for(let i = 0; i <= numCols; i++){
+        ctx.drawImage(IMG.GROUND, blockSize * i, blockSize * 6, blockSize, blockSize);
+        ctx.drawImage(IMG.GROUND, blockSize * i, blockSize * 12, blockSize, blockSize);
+    }
 
     // background for river
     ctx.fillStyle = Colors.river;
@@ -83,12 +97,15 @@ function drawBoard() {
 
     // background for end bank
     ctx.fillStyle = Colors.end;
-    ctx.fillRect(0, 0, canvas.width, blockSize * 1);
+    for(let i = 0; i < numCols; i++){
+        ctx.drawImage(IMG.GRASS, blockSize * i, blockSize * 0, blockSize, blockSize);
+    }
 
     renderCars(blockSize);
     renderPlatforms(blockSize);
 
-    ctx.drawImage(IMG_Frog, player.x * blockSize, player.y * blockSize, blockSize, blockSize);
+    // draw the player
+    ctx.drawImage(IMG.FROG, player.x * blockSize, player.y * blockSize, blockSize, blockSize);
 
     ctx.clearRect(blockSize * numCols, 0, canvas.width, canvas.height);
 }
@@ -97,7 +114,12 @@ function renderCars(size) {
     for (let i = 0; i < cars.length; i++) {
         let car = cars[i];
         ctx.fillStyle = Colors.car;
-        ctx.fillRect(car.pos[0] * size, car.pos[1] * size, size, size);
+        // ctx.fillRect(car.pos[0] * size, car.pos[1] * size, size, size);
+        let img = IMG.CAR;
+        if(car.eastBound == true){
+            img = IMG.CAR2;
+        }
+        ctx.drawImage(img, car.pos[0] * size, car.pos[1] * size, size, size);
     }
 }
 
@@ -124,7 +146,7 @@ function renderPlatforms(size) {
     for (let i = 0; i < safePlatforms.length; i++) {
         let platform = safePlatforms[i];
         ctx.fillStyle = Colors.platform;
-        ctx.fillRect(platform.pos[0] * size, platform.pos[1] * size, size * platform.width, size);
+        ctx.drawImage(IMG.LOG, platform.pos[0] * size, platform.pos[1] * size, size * platform.width, size);
     }
 }
 
@@ -155,7 +177,7 @@ function movePlatforms() {
         safePlatforms[i].pos = [x += direc * safePlatforms[i].speed, safePlatforms[i].pos[1]];
 
         // the player is touching the platform
-        if (!player.platformMoved && checkCollision([safePlatforms[i]], [-0.5, 1.5]) == true) {
+        if (!player.platformMoved && checkCollision([safePlatforms[i]], [-0.6, 1.6]) == true) {
             player.x += direc * safePlatforms[i].speed;
             player.platformMoved = true;
         }
@@ -241,6 +263,10 @@ function gameLoop() {
     let carColl = checkCollision(cars, [-1, 1]);
     if (carColl) {
         resetPlayer(); // send player back to start
+    }
+    let platformColl = checkCollision(safePlatforms, [-0.6, 1.6]);
+    if(!platformColl && player.y <= 5 && player.y >= 1){
+        resetPlayer(); // player fell into water, send back to start
     }
 
     drawBoard();
